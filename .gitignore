@@ -1,5 +1,6 @@
 **/**.db
 **/**.xml
-**/**.txt
 **/**.titles
 **/**.uris
+**/**.DS_Store
+**/**__pycache__
