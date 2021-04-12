@@ -27,4 +27,3 @@ Additionally, there are a number of odds and ends that need to be tied up. This 
 
 - chunking the retrieved documents into pieces that are small enough to be evaluated by the model.
 - deciding which of the model's evaluations contains the correct answer.
-

@@ -1,17 +1,23 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Running reading comprehension module")
+
 import torch
 from transformers import BertForQuestionAnswering, BertTokenizer
 
 
-# These take a few seconds to load.
-model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
-tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+# When you first run this module, it will take a few minutes to load the models.
+# Model warm-up time is about 30 seconds - 1 minute, depending on your machine.
+MODEL = "bert-large-uncased-whole-word-masking-finetuned-squad"
+model = BertForQuestionAnswering.from_pretrained(MODEL)
+# model = BertForQuestionAnswering.from_pretrained('./serving/models/')
+tokenizer = BertTokenizer.from_pretrained(MODEL)
 
 
 def get_model_predictions(question, answer_text):
     """
     TODO: improve this function!
     """
-
     input_ids = tokenizer.encode(question, answer_text)
 
     sep_index = input_ids.index(tokenizer.sep_token_id)

@@ -1,8 +1,15 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Running doc retrieval module")
+
 from typing import List
 import wikipedia as wiki
 
 
-def get_articles(query: str, num_articles: int, characters_per_article: int) -> List[tuple]:
+logging.basicConfig(level=logging.INFO)
+
+
+def get_articles(query: str, num_articles_search: int, characters_per_article: int) -> List[tuple]:
     """
     This function takes a query and downloads the text if relevant Wikipedia articles.
 
@@ -11,7 +18,7 @@ def get_articles(query: str, num_articles: int, characters_per_article: int) -> 
     query : str
         A query that will be used to identify relevant wikipedia articles.
         Example: "Who did Joe Biden defeat in 2020?"
-    num_articles : int
+    num_articles_search : int
         The number of articles that will be searched and downloaded.
     characters_per_article : int
         The number of characters that will be included. The answer to a question
@@ -24,9 +31,10 @@ def get_articles(query: str, num_articles: int, characters_per_article: int) -> 
         A list of tuples where an article's title is mapped to its text. Example: 
         [("United States", "The United States is..."), ("Barack Obama", "Barack Obama is a politician..."), ...]
     """
+    logging.info("Retrieving documents")
 
     # A list of article titles - these may not be the "correct" titles (see below)
-    article_titles = wiki.search(query, results=num_articles)
+    article_titles = wiki.search(query, results=num_articles_search)
 
     # Collect tuples of (article_title, article_text)
     article_data = []

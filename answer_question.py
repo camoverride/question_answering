@@ -1,15 +1,72 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Running QA module")
+
 from typing import List
 
 from document_retrieval import get_articles
-from bert_model import get_model_predictions # TODO: if model_server="something", this shouldnt be imported
+from reading_comprehension import get_model_predictions # TODO: if model_server_address="something", this shouldnt be imported
+
+
+class BertTokenSizeOutOfRange(Exception):
+    """
+    Raised when you are attempting to send too much data to the BERT Model.
+    BERT can embed at most 512 tokens. Because BERT QA uses 3 special tokens,
+    the max length for a query + context is 509 tokens. This error should be
+    raised whenever len(query + context) > 509.
+
+    Ideally, this error should be raised only after the query + context are
+    tokenized by BERT's tokenizer. However, this operation is expensive so
+    it may be advisable to measure simple whitespace tokenized items instead.
+
+    Attributes:
+        token_count -- the length of a list of word tokens which is too great.
+    """
+    def __init__(self, token_count):
+        self.token_count = token_count
 
 
 class Answerer:
-    def __init__(self, num_articles=5, characters_per_article=2500, chunk_size=300, model_server=False):
-        self.num_articles = num_articles
+    """
+    Attributes
+    ----------
+    num_articles_search : int
+        The number of articles that will be downloaded by the document retriever.
+    characters_per_article : int
+        Only use the first `characters_per_article` from the article - the answer is likely to
+        be in the beginning of a document.
+    model_server_address : str
+        Address of the BERT model server. If False, a model from huggingface will be downloaded locally.
+    
+    Methods
+    -------
+    answer_question
+        Returns an answer object in response to a question.
+        This answer must be parsed like ans["answer"]["answer"]
+    """
+
+    def __init__(self, num_articles_search=5, characters_per_article=2500, model_server_address=False):
+        self.num_articles_search = num_articles_search
         self.characters_per_article = characters_per_article
-        self.chunk_size = chunk_size
-        self.model_server = model_server
+        self.model_server_address = model_server_address
+
+
+    def _get_tokens(self, query_or_context: str) -> int:
+        """
+        TODO: currently this just splits on whitespace. However, it should ideally use
+        BERT's tokenizer. However, this is computationally expensive to do.
+
+        Parameters
+        ----------
+        query_or_context : str
+            A string of text that will be tokenized.    
+
+        Returns
+        -------
+        int
+            The number of tokens in the string.
+        """
+        return query_or_context.split(" ")
 
 
     def _get_article_chunks(self, article: str) -> List[str]:
@@ -18,8 +75,6 @@ class Answerer:
         the number of tokens it can accept, so the chunk size must be accordingly small.
         BERT can accept 509 tokens (512 minus the three special tokens). So the length of
         the question + answer must be <= 509.
-        TODO: currently this function chunks based on whitespace tokenization, NOT Bert's
-        own tokenizer - replace with BERT.
         TODO: chunks should have some overlap in case the answer exists at a boundary.
 
         Parameters
@@ -32,7 +87,7 @@ class Answerer:
         list
             A list of strings, which are chunks of the article.
         """
-        tokens = article.split(" ")
+        tokens = self._get_tokens(article)
         for i in range(0, len(tokens), self.chunk_size):
             chunk = " ".join(tokens[i:i + self.chunk_size])
 
@@ -96,10 +151,16 @@ class Answerer:
         dict
             A dict that contains the query results.
         """
-        assert len(question.split(" ")) < 15
+        # Subtract 150 because BERT's tokenizer may return more tokens than my own.
+        self.chunk_size = 509 - len(self._get_tokens(question)) - 150
+
+        # Make sure that the query is not too long. Long queries hurt performance.
+        question_token_len = len(self._get_tokens(question))
+        if question_token_len > 15:
+            raise BertTokenSizeOutOfRange(question_token_len)
 
         # Download all the relevant Wikipedia articles.
-        articles = get_articles(question, num_articles=self.num_articles, characters_per_article=self.characters_per_article)
+        articles = get_articles(question, num_articles_search=self.num_articles_search, characters_per_article=self.characters_per_article)
 
         # Collect tuples of article chunks: (article_title, article_chunk)
         output = []
@@ -107,6 +168,7 @@ class Answerer:
         for article_title, article_text in articles:
             chunks = list(self._get_article_chunks(article_text))
             for article_chunk in chunks:
+                logging.info("Getting model prediction")
                 pred = get_model_predictions(question, article_chunk)
 
                 data = {
@@ -126,11 +188,13 @@ class Answerer:
 
 if __name__ == "__main__":
 
-    QUESTION = "how many provinces are in Canada?"
+    QUESTION = "what is the population of France?"
+    logging.info("Beginning QA")
+    # answerer = Answerer(model_server=False)
+
     answerer = Answerer()
 
-    print(QUESTION)
-    print("----------")
+    logging.info(f"{QUESTION}")
     ans = answerer.answer_question(QUESTION)
-    print(ans["answer"])
+    logging.info(ans["answer"])
 
