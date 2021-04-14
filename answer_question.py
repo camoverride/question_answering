@@ -197,4 +197,3 @@ if __name__ == "__main__":
     logging.info(f"{QUESTION}")
     ans = answerer.answer_question(QUESTION)
     logging.info(ans["answer"])
-
