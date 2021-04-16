@@ -7,6 +7,9 @@ import logging
 from answer_question import Answerer
 
 
+# Change this to debug if you want to see documents being downloaded.
+logging.basicConfig(level=logging.INFO)
+
 # Model Server config
 URL = "localhost"
 PORT = "8080"
@@ -20,6 +23,6 @@ logging.info("Beginning QA")
 
 answerer = Answerer(model_server_address=MODEL_SERVER)
 
-logging.info(f"QUESTION: {QUESTION}")
+print(f"QUESTION: {QUESTION}")
 ans = answerer.answer_question(QUESTION)
-logging.info(f'ANSWER: {ans["answer"]["answer"]}')
+print(f'ANSWER: {ans["answer"]["answer"]}')

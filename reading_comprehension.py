@@ -10,10 +10,7 @@ import requests
 from transformers import BertTokenizer
 
 
-logging.basicConfig(level=logging.INFO)
 logging.info("Running reading comprehension module")
-
-
 tokenizer = BertTokenizer.from_pretrained("./models/tokenizer/") # load locally
 
 

@@ -35,7 +35,7 @@ def get_articles(query: str, num_articles_search: int, characters_per_article: i
         [("United States", "The United States is..."),
         ("Barack Obama", "Barack Obama is a politician..."), ...]
     """
-    logging.info("Retrieving documents")
+    logging.debug("Retrieving documents")
 
     # A list of article titles - these may not be the "correct" titles (see below)
     article_titles = wiki.search(query, results=num_articles_search)

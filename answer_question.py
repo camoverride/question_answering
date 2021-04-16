@@ -1,11 +1,11 @@
 import logging
-logging.basicConfig(level=logging.INFO)
-logging.info("Running QA module")
-
 from typing import List
 
 from document_retrieval import get_articles
 from reading_comprehension import get_model_predictions
+
+
+logging.info("Running QA module")
 
 
 class BertTokenSizeOutOfRange(Exception):
@@ -168,7 +168,7 @@ class Answerer:
         for article_title, article_text in articles:
             chunks = list(self._get_article_chunks(article_text))
             for article_chunk in chunks:
-                logging.info("Getting model prediction")
+                logging.debug("Getting model prediction")
                 pred = get_model_predictions(question, article_chunk, self.model_server_address)
 
                 data = {
