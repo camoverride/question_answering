@@ -21,17 +21,21 @@ Or build it locally and then boot it up:
 
 Test it out:
 
+- `python demo.py`
+
+If you want a closer look at how the functions all work, run the tests:
+
 - `python -m unittest tests/test_bert_model.py`
+- `python -m unittest tests/test_document_retrieval.py`
 
 
 ## Under the hood
 
 Question answering systems all operate in two steps:
 
-- find some relevant documents. This process is called _document retrieval_ and the software that does this is called a _search engine_. This is implemented in `document_retrieval.py`.
-- read through the documents and find the answer. This process is called _reading comprehension_ and is performed by a model like BERT. This is implemented in `reading_comprehension.py`
+- Find some relevant documents. This process is called _document retrieval_ and the software that does this is called a _search engine_. This is implemented in `document_retrieval.py`. This function requires an active internet connection.
+- Read through the documents and find the answer. This process is called _reading comprehension_ and is performed by a model like BERT. This is implemented in `reading_comprehension.py`. This function requires a model server.
 
-Additionally, there are a number of odds and ends that need to be tied up. This is all done in the `answer_question.py` module:
+These two steps (plus some post-processing) are implemented in the `Answerer` class, which lives in `answer_question.py`.
 
-- chunking the retrieved documents into pieces that are small enough to be evaluated by the model.
-- deciding which of the model's evaluations contains the correct answer.
+I built the model server from a `SavedModel` that I run with tensorflow serving. However, it was too big to save in this repo. A module that re-creates this model artifact is in `models/create_saved_model.py`.
