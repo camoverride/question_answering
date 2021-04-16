@@ -12,6 +12,8 @@ answerer = Answerer(model_server_address="http://localhost:8080/v1/models/bert_q
 ans = answerer.answer_question(question)["answer"]["answer"] # 67 . 4 million
 ~~~
 
+To learn a little more about this, check out [the blog post](https://camtsmith.com/articles/2021-04/question-answering-with-bert).
+
 
 ## Run
 
