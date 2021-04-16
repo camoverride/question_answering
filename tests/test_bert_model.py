@@ -101,8 +101,8 @@ class TestModel(unittest.TestCase):
         assert model_output["answer"] == "paris"
 
         # Check that the start and end score max is a float.
-        assert model_output["start_scores_max"].tolist() == 6.062509059906006
-        assert model_output["end_scores_max"].tolist() == 7.04248046875
+        assert model_output["start_scores_max"] == 6.06250906
+        assert model_output["end_scores_max"] == 7.04248047
 
         # Check that the start and end score tensors are the right length.
         assert len(model_output["start_scores"]) == len(model_output["start_scores"]) == 130

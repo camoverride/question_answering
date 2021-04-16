@@ -5,7 +5,7 @@ model server to perform reading comprehension.
 
 import json
 import logging
-import torch
+import numpy as np
 import requests
 from transformers import BertTokenizer
 
@@ -53,17 +53,16 @@ def get_model_predictions(question: str, answer_text: str, model_server_address:
     data = json.dumps({"signature_name": "serving_default", "instances": signatures})
 
     headers = {"content-type": "application/json"}
-    # json_response = requests.post(f"http://{URL}:{PORT}/v{MODEL_VERSION}/models/{MODEL_NAME}:predict", data=data, headers=headers)
     json_response = requests.post(model_server_address, data=data, headers=headers)
 
     response_text = json.loads(json_response.text)
 
     # Get the start and end scores from the response.
-    start_scores = torch.tensor(response_text["predictions"][0]["start_logits"])
-    end_scores = torch.tensor(response_text["predictions"][0]["end_logits"])
+    start_scores = response_text["predictions"][0]["start_logits"]
+    end_scores = response_text["predictions"][0]["end_logits"]
 
-    answer_start = torch.argmax(start_scores)
-    answer_end = torch.argmax(end_scores)
+    answer_start = np.argmax(start_scores)
+    answer_end = np.argmax(end_scores)
 
     # Convert back to tokens so that the answer can be a string.
     tokens = tokenizer.convert_ids_to_tokens(input_ids)
@@ -77,8 +76,8 @@ def get_model_predictions(question: str, answer_text: str, model_server_address:
 
     # Set up a dict to organize the data returned by the model.
     all_data = {"answer": answer,
-                "start_scores_max": start_scores.max(),
-                "end_scores_max": end_scores.max(),
+                "start_scores_max": max(start_scores),
+                "end_scores_max": max(end_scores),
                 "start_scores": start_scores,
                 "end_scores": end_scores}
 
