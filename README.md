@@ -39,6 +39,8 @@ If you want a closer look at how the functions all work, run the tests:
 - `python -m unittest tests/test_bert_model.py`
 - `python -m unittest tests/test_document_retrieval.py`
 
+If you need to tweak the model server configuration, check out `model_server_config.yaml`.
+
 
 ## Under the hood
 

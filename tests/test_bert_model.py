@@ -1,22 +1,20 @@
 """
 Test the QA model: test the actual BERT model, the tokenizer, and `get_model_predictions`
 WARNING: Initialize the model server before running these tests.
-TODO: warm up model server.
 """
 
 import json
 import unittest
 import requests
+import yaml
 from transformers import BertTokenizer
 from reading_comprehension import get_model_predictions
 
 
-# Model server config
-URL = "localhost"
-PORT = "8080"
-MODEL_NAME = "bert_qa_squad"
-MODEL_VERSION = "1"
-MODEL_SERVER_ADDRESS = f"http://{URL}:{PORT}/v{MODEL_VERSION}/models/{MODEL_NAME}:predict"
+# Model Server config
+with open("model_server_config.yaml") as conf:
+    config = yaml.load(conf, Loader=yaml.FullLoader)
+    MODEL_SERVER = f"http://{config['model_server_url']}:{config['model_server_port']}/v{config['model_version']}/models/{config['model_name']}:predict"
 
 # Test data along with tokenized forms and their ID's
 QUERY = "What is the capital of France?"
@@ -55,7 +53,7 @@ class TestModel(unittest.TestCase):
         data = json.dumps({"signature_name": "serving_default", "instances": signatures})
 
         headers = {"content-type": "application/json"}
-        json_response = requests.post(f"http://{URL}:{PORT}/v{MODEL_VERSION}/models/{MODEL_NAME}:predict", data=data, headers=headers)
+        json_response = requests.post(MODEL_SERVER, data=data, headers=headers)
         response_text = json.loads(json_response.text)
 
         # Make sure that predictions are returned.
@@ -95,7 +93,7 @@ class TestModel(unittest.TestCase):
         """
         Test both of these functions together in the `get_model_predictions` function!
         """
-        model_output = get_model_predictions(QUERY, CONTEXT, MODEL_SERVER_ADDRESS)
+        model_output = get_model_predictions(QUERY, CONTEXT, MODEL_SERVER)
 
         # Check that the answer is correct.
         assert model_output["answer"] == "paris"

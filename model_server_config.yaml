@@ -1,0 +1,5 @@
+# Model server config
+model_server_url: "localhost"
+model_server_port: "8080"
+model_name: "bert_qa_squad"
+model_version: "1"

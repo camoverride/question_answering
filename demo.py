@@ -4,6 +4,7 @@ Make sure you have a model server up and running!
 """
 
 import logging
+import yaml
 from answer_question import Answerer
 
 
@@ -11,11 +12,9 @@ from answer_question import Answerer
 logging.basicConfig(level=logging.INFO)
 
 # Model Server config
-URL = "localhost"
-PORT = "8080"
-MODEL_NAME = "bert_qa_squad"
-MODEL_VERSION = "1"
-MODEL_SERVER = f"http://{URL}:{PORT}/v{MODEL_VERSION}/models/{MODEL_NAME}:predict"
+with open("model_server_config.yaml") as conf:
+    config = yaml.load(conf, Loader=yaml.FullLoader)
+    MODEL_SERVER = f"http://{config['model_server_url']}:{config['model_server_port']}/v{config['model_version']}/models/{config['model_name']}:predict"
 
 # Build the query.
 QUESTION = "what is the population of France?"
