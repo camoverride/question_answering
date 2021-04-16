@@ -1,3 +1,4 @@
+# Ignored because this is a very large model.
 models/bert_qa_squad
 
 **/**.db
