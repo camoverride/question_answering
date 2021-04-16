@@ -21,13 +21,14 @@ Install the requirements:
 
 Download the model as a docker servable and boot it up:
 
-- `docker pull camoverride/bert-squad-qa-large:v0.1`
-- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.1`
+- `docker pull camoverride/bert-squad-qa-large:v0.2`
+- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.2`
 
 Or build it locally and then boot it up:
 
-- `docker build -t camoverride/bert-squad-qa-large:v0.1 .`
-- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.1`
+- `python models/create_saved_model.py` (creates the folder `models/bert_qa_squad` because the model is too large to store in git)
+- `docker build -t camoverride/bert-squad-qa-large:v0.2 .`
+- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.2`
 
 Test it out:
 
