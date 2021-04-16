@@ -5,7 +5,7 @@ logging.info("Running QA module")
 from typing import List
 
 from document_retrieval import get_articles
-from reading_comprehension import get_model_predictions # TODO: if model_server_address="something", this shouldnt be imported
+from reading_comprehension import get_model_predictions
 
 
 class BertTokenSizeOutOfRange(Exception):
@@ -30,14 +30,14 @@ class Answerer:
     """
     Attributes
     ----------
+    model_server_address : str
+        Address of the BERT model server.
     num_articles_search : int
         The number of articles that will be downloaded by the document retriever.
     characters_per_article : int
         Only use the first `characters_per_article` from the article - the answer is likely to
         be in the beginning of a document.
-    model_server_address : str
-        Address of the BERT model server. If False, a model from huggingface will be downloaded locally.
-    
+
     Methods
     -------
     answer_question
@@ -45,10 +45,10 @@ class Answerer:
         This answer must be parsed like ans["answer"]["answer"]
     """
 
-    def __init__(self, num_articles_search=5, characters_per_article=2500, model_server_address=False):
+    def __init__(self, model_server_address, num_articles_search=5, characters_per_article=2500):
+        self.model_server_address = model_server_address
         self.num_articles_search = num_articles_search
         self.characters_per_article = characters_per_article
-        self.model_server_address = model_server_address
 
 
     def _get_tokens(self, query_or_context: str) -> int:
@@ -169,7 +169,7 @@ class Answerer:
             chunks = list(self._get_article_chunks(article_text))
             for article_chunk in chunks:
                 logging.info("Getting model prediction")
-                pred = get_model_predictions(question, article_chunk)
+                pred = get_model_predictions(question, article_chunk, self.model_server_address)
 
                 data = {
                         "answer": pred["answer"],
@@ -184,16 +184,3 @@ class Answerer:
                 output.append(data)
 
         return self._decider(output, question)
-
-
-if __name__ == "__main__":
-
-    QUESTION = "what is the population of France?"
-    logging.info("Beginning QA")
-    # answerer = Answerer(model_server=False)
-
-    answerer = Answerer()
-
-    logging.info(f"{QUESTION}")
-    ans = answerer.answer_question(QUESTION)
-    logging.info(ans["answer"])

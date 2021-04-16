@@ -1,10 +1,25 @@
+"""
+A demonstration of how to use this library.
+Make sure you have a model server up and running!
+"""
+
+import logging
 from answer_question import Answerer
 
 
-qa = Answerer()
+# Model Server config
+URL = "localhost"
+PORT = "8080"
+MODEL_NAME = "bert_qa_squad"
+MODEL_VERSION = "1"
+MODEL_SERVER = f"http://{URL}:{PORT}/v{MODEL_VERSION}/models/{MODEL_NAME}:predict"
 
-ans = qa.answer_question("What is the biggest city in the USA?")
+# Build the query.
+QUESTION = "what is the population of France?"
+logging.info("Beginning QA")
 
-print(ans["answer"]["answer"])
-print("########################################################")
-print(ans)
+answerer = Answerer(model_server_address=MODEL_SERVER)
+
+logging.info(f"QUESTION: {QUESTION}")
+ans = answerer.answer_question(QUESTION)
+logging.info(f'ANSWER: {ans["answer"]["answer"]}')

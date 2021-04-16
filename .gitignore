@@ -1,3 +1,5 @@
+models/bert_qa_squad
+
 **/**.db
 **/**.xml
 **/**.titles

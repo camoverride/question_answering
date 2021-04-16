@@ -3,18 +3,26 @@
 This project implements a question answering system using Wikipedia as a resource. The system that performs document retrieval is Wikipedia's own [elastic search](https://en.wikipedia.org/wiki/Elasticsearch) engine. The model that does reading comprehension is [BERT](https://arxiv.org/abs/1810.04805) fine-tuned on Wikipedia, courtesy of the [transformers](https://huggingface.co/transformers/) library 🥰
 
 
-## Install
+## Run
 
-Run as a Python module (QA results are slow):
+Install the requirements:
 
 - `pip install -r requirements-dev.txt`
-- `run tests xxx`
 
-Run as a separate model server:
+Download the model as a docker servable and boot it up:
 
-- docker pull
-- docker run
-- add `Answerer(model_server="localhost:8888")` to module
+- `docker pull camoverride/bert-squad-qa-large:v0.1`
+- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.1`
+
+Or build it locally and then boot it up:
+
+- `docker build -t camoverride/bert-squad-qa-large:v0.1 .`
+- `docker run -t --rm -p 8080:8080 camoverride/bert-squad-qa-large:v0.1`
+
+Test it out:
+
+- `python -m unittest tests/test_bert_model.py`
+
 
 ## Under the hood
 
