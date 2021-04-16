@@ -1,3 +1,8 @@
+"""
+This module contains the class Answerer, which combines the search engine
+with the reading comprehension model (BERT) to select an answer.
+"""
+
 import logging
 from typing import List
 
@@ -59,7 +64,7 @@ class Answerer:
         Parameters
         ----------
         query_or_context : str
-            A string of text that will be tokenized.    
+            A string of text that will be tokenized.
 
         Returns
         -------
@@ -69,27 +74,28 @@ class Answerer:
         return query_or_context.split(" ")
 
 
-    def _get_article_chunks(self, article: str) -> List[str]:
+    def _get_article_chunks(self, article: str, chunk_size: int) -> List[str]:
         """
         This function divides an article into smaller chunks. BERT has an upper limit for
         the number of tokens it can accept, so the chunk size must be accordingly small.
         BERT can accept 509 tokens (512 minus the three special tokens). So the length of
         the question + answer must be <= 509.
-        TODO: chunks should have some overlap in case the answer exists at a boundary.
 
         Parameters
         ----------
         article : str
             An article that will be chunked
-        
+        chunk_size : int
+            The length of the article chunks.
+
         Returns
         -------
         list
             A list of strings, which are chunks of the article.
         """
         tokens = self._get_tokens(article)
-        for i in range(0, len(tokens), self.chunk_size):
-            chunk = " ".join(tokens[i:i + self.chunk_size])
+        for i in range(0, len(tokens), chunk_size):
+            chunk = " ".join(tokens[i:i + chunk_size])
 
             yield chunk
 
@@ -100,7 +106,6 @@ class Answerer:
         output for a different chunk. This function compares them and decides which answer is
         best. The criterion is simple: the best answer is the answer with the highest value
         for start_scores_max + end_scores_max
-        TODO: find a better decision criteria, looking at the entire dist possibly
 
         Parameters
         ----------
@@ -138,7 +143,7 @@ class Answerer:
         """
         This function searches Wikipedia to provide an answer for a given question.
         It returns a dict with two keys: "answer" and "other_results". "other_results"
-        is a list but contains entries with an identical structure to "answer". 
+        is a list but contains entries with an identical structure to "answer".
         answer_question(question)["answer"]["answer"] contains the answer to the question.
 
         Parameters
@@ -152,7 +157,7 @@ class Answerer:
             A dict that contains the query results.
         """
         # Subtract 150 because BERT's tokenizer may return more tokens than my own.
-        self.chunk_size = 509 - len(self._get_tokens(question)) - 150
+        chunk_size = 509 - len(self._get_tokens(question)) - 150
 
         # Make sure that the query is not too long. Long queries hurt performance.
         question_token_len = len(self._get_tokens(question))
@@ -160,13 +165,14 @@ class Answerer:
             raise BertTokenSizeOutOfRange(question_token_len)
 
         # Download all the relevant Wikipedia articles.
-        articles = get_articles(question, num_articles_search=self.num_articles_search, characters_per_article=self.characters_per_article)
+        articles = get_articles(question, num_articles_search=self.num_articles_search,
+                                          characters_per_article=self.characters_per_article)
 
         # Collect tuples of article chunks: (article_title, article_chunk)
         output = []
 
         for article_title, article_text in articles:
-            chunks = list(self._get_article_chunks(article_text))
+            chunks = list(self._get_article_chunks(article_text, chunk_size))
             for article_chunk in chunks:
                 logging.debug("Getting model prediction")
                 pred = get_model_predictions(question, article_chunk, self.model_server_address)
