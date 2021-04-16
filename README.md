@@ -2,6 +2,16 @@
 
 This project implements a question answering system using Wikipedia as a resource. The system that performs document retrieval is Wikipedia's own [elastic search](https://en.wikipedia.org/wiki/Elasticsearch) engine. The model that does reading comprehension is [BERT](https://arxiv.org/abs/1810.04805) fine-tuned on Wikipedia, courtesy of the [transformers](https://huggingface.co/transformers/) library 🥰
 
+~~~python
+from answer_question import Answerer
+
+question = "what is the population of France?"
+
+answerer = Answerer(model_server_address="http://localhost:8080/v1/models/bert_qa_squad:predict")
+
+ans = answerer.answer_question(question)["answer"]["answer"] # 67 . 4 million
+~~~
+
 
 ## Run
 
