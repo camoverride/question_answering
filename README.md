@@ -17,9 +17,10 @@ To learn a little more about this, check out [the blog post](https://camtsmith.c
 
 ## Run
 
-Install the requirements:
+Install the requirements and start Docker:
 
-- `pip install -r requirements-dev.txt`
+- `conda create --name question_answering python=3.8 -y && conda activate question_answering`
+- `pip install -r requirements.txt`
 
 Download the model as a docker servable and boot it up:
 

@@ -17,11 +17,18 @@ with open("model_server_config.yaml") as conf:
     MODEL_SERVER = f"http://{config['model_server_url']}:{config['model_server_port']}/v{config['model_version']}/models/{config['model_name']}:predict"
 
 # Build the query.
-QUESTION = "what is the population of France?"
 logging.info("Beginning QA")
 
 answerer = Answerer(model_server_address=MODEL_SERVER)
 
-print(f"QUESTION: {QUESTION}")
-ans = answerer.answer_question(QUESTION)
-print(f'ANSWER: {ans["answer"]["answer"]}')
+print("Ask a question, i.e. 'what is the capital of France?'")
+print("To exit the session, type 'end'")
+
+# Event loop where questions can be asked
+question = "A"
+while question not in ["end", "End", "stop", "Stop"]:
+
+    question = input("QUESTION: ")
+    ans = answerer.answer_question(question)
+    print("ANSWER:")
+    print(f'{ans["answer"]["answer"]}')

@@ -8,6 +8,8 @@ import torch
 from transformers import TFBertForQuestionAnswering
 
 
+print("Creating a saved model. This might take a while...")
+
 model = TFBertForQuestionAnswering.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
 
 model.save_pretrained(save_directory="models/bert_qa_squad", saved_model=True, version=1)
